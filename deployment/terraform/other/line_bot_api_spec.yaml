@@ -1,0 +1,46 @@
+swagger: '2.0'
+info:
+  title: line Bot API Gateway
+  description: Proxy line Bot requests to Cloud Run
+  version: 1.0.0
+
+host: line-bot-api.apigateway.arkhr-${env}.cloud.goog
+basePath: /v1
+schemes:
+  - https
+
+paths:
+  /bot:
+    post:
+      summary: Proxy for line Bot
+      operationId: lineBotCall
+      description: Forwards bot messages to backend
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Bot message payload
+          required: true
+          schema:
+            type: object
+      responses:
+        default:
+          description: successful operation
+      security:
+        - api_key: []
+
+x-google-backend:
+  address: ${cloud_function_url} #adjust
+  path_translation: APPEND_PATH_TO_ADDRESS
+
+securityDefinitions:
+  api_key:
+    type: apiKey
+    name: key
+    in: query
+
+
+ 

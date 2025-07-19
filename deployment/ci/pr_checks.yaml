@@ -1,0 +1,114 @@
+# Copyright 2025 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+steps:
+  # 1.Install uv package manager and sync dependencies
+  - name: "python:3.12-slim"
+    id: install-dependencies
+    entrypoint: /bin/bash
+    args:
+      - "-c"
+      - |
+        pip install uv==0.6.12 --user && uv sync --frozen
+    env:
+      - 'PATH=/usr/local/bin:/usr/bin:~/.local/bin'
+
+  # 2.Run deployment terraform
+  - name: "hashicorp/terraform:1.11.1" 
+    id: deploy-terraform
+    entrypoint: /bin/sh
+    args:
+      - "-c"
+      - |
+        cd deployment/terraform
+        terraform init -reconfigure -backend-config=backends/backend_stg.hcl
+        terraform apply --var-file vars/stg_env.tfvars -auto-approve
+
+  # 3.Run deployment agent engine
+  - name: "python:3.12-slim"
+    id: deploy-agent-engine
+    entrypoint: /bin/bash
+    args:
+      - "-c"
+      - |
+        uv export --no-hashes --no-sources --no-header --no-dev --no-emit-project --no-annotate --frozen -o .requirements.txt
+        uv run app/agent_engine_app.py
+    env:
+      - 'PATH=/usr/local/bin:/usr/bin:~/.local/bin'
+
+  # 4.Run unit tests using pytest
+  - name: "python:3.12-slim"
+    id: unit-tests
+    entrypoint: /bin/bash
+    args:
+      - "-c"
+      - |
+        uv run pytest tests/unit
+    env:
+      - 'PATH=/usr/local/bin:/usr/bin:~/.local/bin'
+
+  # 5.Run integration tests
+  - name: "python:3.12-slim"
+    id: integration-tests
+    entrypoint: /bin/bash
+    args:
+      - "-c"
+      - |
+        uv run pytest tests/integration
+    env:
+      - 'PATH=/usr/local/bin:/usr/bin:~/.local/bin'
+
+  # 6.save token
+  - name: gcr.io/cloud-builders/gcloud
+    id: fetch-auth-token
+    entrypoint: /bin/bash
+    args:
+      - "-c"
+      - |
+        echo $(gcloud auth print-access-token -q) > auth_token.txt
+
+    # 7.Load Testing
+  - name: "python:3.12-slim"
+    id: load_test
+    entrypoint: /bin/bash
+    args:
+      - "-c"
+      - |
+        export _AUTH_TOKEN=$(cat auth_token.txt)
+        uv add locust==2.32.6
+        uv run locust -f tests/load_test/load_test.py \
+        --headless \
+        -t 30s -u 1 -r 1 \
+        --csv=tests/load_test/.results/results \
+        --html=tests/load_test/.results/report.html
+    env:
+      - 'PATH=/usr/local/bin:/usr/bin:~/.local/bin'
+
+  # 8.Export Load Test Results to GCS
+  - name: gcr.io/cloud-builders/gcloud
+    id: export-results-to-gcs
+    entrypoint: /bin/bash
+    args:
+      - "-c"
+      - |
+        export _TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+        gsutil -m cp -r tests/load_test/.results gs://${_BUCKET_NAME_LOAD_TEST_RESULTS}/results-$${_TIMESTAMP}
+        echo "_________________________________________________________________________"
+        echo "Load test results copied to gs://${_BUCKET_NAME_LOAD_TEST_RESULTS}/results-$${_TIMESTAMP}"
+        echo "HTTP link: https://console.cloud.google.com/storage/browser/${_BUCKET_NAME_LOAD_TEST_RESULTS}/results-$${_TIMESTAMP}"
+        echo "_________________________________________________________________________"
+
+logsBucket: gs://${PROJECT_ID}-linebot-agent-logs-data/build-logs
+options:
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
