@@ -37,3 +37,12 @@ resource "google_storage_bucket" "bucket_load_test_results" {
   depends_on = [resource.google_project_service.services]
 }
 
+# bucket store line bot session  
+resource "google_storage_bucket" "bucket_line_bot_session" {
+  name                        = "${var.project_id}-${var.project_name}-line_bot_session-store"
+  location                    = var.region
+  project                     = var.project_id
+  uniform_bucket_level_access = true
+
+  depends_on = [resource.google_project_service.services]
+}

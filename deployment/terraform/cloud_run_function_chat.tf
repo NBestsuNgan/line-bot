@@ -1,6 +1,6 @@
 data "archive_file" "function_zip" {
   type        = "zip"
-  source_dir  = "${path.module}/cloud_run_function_chat"
+  source_dir = "${path.module}/../../line-bot-framework"
   output_path = "${path.module}/other/function.zip"
 }
 

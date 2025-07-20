@@ -4,7 +4,7 @@ import os
 import json
 import time
 from datetime import datetime, timedelta
-from .session_state import SessionState
+from session_state import SessionState
 from vertexai import agent_engines
 import logging
 import asyncio
@@ -51,21 +51,20 @@ class SessionHandler():
         self.remote_app = agent_engines.get(engine_id)  
 
  
-    async def on_message_activity(self, event: MessageEvent, configuration: Configuration):
+    async def on_message_activity(self, lineEvent: MessageEvent, configuration: Configuration):
         # turn on engine
         await self.get_remote_app()
 
         # fetch session meta data | 1..user_id 2.session_count
-        self._sessionState = SessionState(event)
-        self._userState = self._sessionState.load_session()
+        self._sessionState = SessionState(lineEvent)
+        self._userState = await self._sessionState.load_session()
 
         with ApiClient(configuration) as api_client:
             line_bot_api = MessagingApi(api_client)
             # Agent engine management
-            user_question = event.message.text
+            user_question = lineEvent.message.text
             if user_question:
                 user_id = self._userState.user_id
-                user_count_messages = self._userState.session_count
                 sessions = self.remote_app.list_sessions(user_id=user_id)
 
                 # if not have sessions, create one
@@ -89,38 +88,42 @@ class SessionHandler():
                     sessions = self.remote_app.list_sessions(user_id=user_id)
                     session_id = sessions["sessions"][-1]["id"]
                     
-                if user_count_messages > 10:
+                if self._userState.session_count > 5:
                     await self.restart_session(session_id=session_id, user_id=user_id, session_user_state=self._sessionState)
                     sessions = self.remote_app.list_sessions(user_id=user_id)
                     session_id = sessions["sessions"][-1]["id"]
 
                 else:
-                    for event_engine in self.remote_app.stream_query(
+                    for engineEvent in self.remote_app.stream_query(
                         user_id=user_id,
                         session_id=session_id,
                         message=user_question,
                     ):
-                        if event_engine.get("content", None):
-                            user_count_messages  += 1
+                        if engineEvent.get("content", None):
+                            self._userState.session_count  += 1
+                            await self._sessionState.save_session(user_id, {
+                                "user_id": user_id,
+                                "session_count": self._userState.session_count
+                            })
                             # print(sessions)
                             # print(f"session_user_state.count_messages : {session_user_state.count_messages}")
                             line_bot_api.reply_message(
                                 ReplyMessageRequest(
-                                    reply_token=event_engine.reply_token,
-                                    messages=[TextMessage(text=f'{event_engine['content']['parts'][-1]['text']}')]
+                                    reply_token=lineEvent.reply_token,
+                                    messages=[TextMessage(text=f"{engineEvent['content']['parts'][-1]['text']}")]
                                 )
                             )
-                        
+                            logger.info(f"Question: '{user_question}', Answer: '{engineEvent['content']['parts'][-1]['text']}', from user_id: '{user_id}'")
 
                         else:
                             line_bot_api.reply_message(
                                 ReplyMessageRequest(
-                                    reply_token=event_engine.reply_token,
+                                    reply_token=lineEvent.reply_token,
                                     messages=[TextMessage(text='Agent Engine not responding, Please Contact IT Team')]
                                 )
                             )
                             raise Exception(
-                                f"Error: {event_engine.get('error', 'Agent Engine not responding')}"
+                                f"Error: {engineEvent.get('error', 'Agent Engine not responding')}"
                             )
             
 
@@ -128,9 +131,12 @@ class SessionHandler():
         """
         Restart the session by deleting and creating a new one.
         """
+        # agent engine restart
         self.remote_app.delete_session(session_id=session_id, user_id=user_id)
         self.remote_app.create_session(user_id=user_id)
-        session_user_state.session_count = 0
+
+        # line bot session restart
+        self._userState.session_count = 0
         session_user_state.cache_question_response = {}
 
         return None

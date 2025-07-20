@@ -2,12 +2,13 @@ import os
 import uvicorn
 
 from dotenv import load_dotenv
+import asyncio
 
 from fastapi import FastAPI, Request, HTTPException, Header
 
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
-from linebot.v3.webhooks import MessageEvent, MessageContent
+from linebot.v3.webhooks import MessageEvent, MessageContent , TextMessageContent
 from aiohttp import web
 
 from linebot.v3.messaging import (
@@ -24,7 +25,7 @@ app = FastAPI()
 
 # set configure
 load_dotenv()
-from .session_handler import SessionHandler 
+from session_handler import SessionHandler 
 get_access_token = os.getenv('CHANNEL_ACCESS_TOKEN')
 get_channel_secret = os.getenv('CHANNEL_SECRET')
 
@@ -61,11 +62,15 @@ async def callback(request: Request, x_line_signature: str = Header(None)):
 # Start sessiongandler class for context management
 BOT = SessionHandler()
 
+
 # passing requests to backend server for only TEXT message type
-@handler.add(MessageEvent, message=MessageContent)
-async def handle_message(event: MessageEvent):
-    # BOT is act as sessionhandler + sessionstate
-    await BOT.on_message_activity(event, configuration)
+@handler.add(MessageEvent, message=TextMessageContent)
+def handle_message(event: MessageEvent):
+    print("Handler called!")
+    try:
+        asyncio.create_task(BOT.on_message_activity(event, configuration))
+    except Exception as e:
+        print("Exception in handle_message:", e)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,8 @@ from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
 from linebot.v3.webhooks import MessageEvent, MessageContent
 from aiohttp import web
+import google
+import vertexai
 
 from linebot.v3.messaging import (
     ApiClient, 
@@ -18,8 +20,9 @@ from linebot.v3.messaging import (
 )
 
 from typing import Optional
+credentials, project_id = google.auth.default()
 
-GCS_BUCKET = "my-bucket"
+GCS_BUCKET = f"{project_id}-linebot-line_bot_session-store"
 GCS_PREFIX = "sessions"
 
 
