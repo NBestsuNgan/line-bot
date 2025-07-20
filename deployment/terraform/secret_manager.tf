@@ -1,8 +1,8 @@
 # 1.Define your secrets and their values
 locals {
   secrets = {
-    "APP_SECRET"             = "placeholder-value"
-    "APP_PASSWORD"           = "placeholder-value"
+    "CHANNEL_ACCESS_TOKEN"   = "placeholder-value"
+    "CHANNEL_SECRET"         = "placeholder-value"
     "REMOTE_AGENT_ENGINE_ID" = "placeholder-value"
   }
 }
