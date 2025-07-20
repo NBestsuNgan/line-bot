@@ -120,7 +120,6 @@ After you edited the relative [`env.tfvars` file](../terraform/dev/vars/env.tfva
 #  -  github_app_installation_id
 
 
-
 # dev
 gcloud storage buckets create gs://linebot-terraform-state-{dev_project-id} --project={dev_project-id} --location=us-central1
 terraform init -backend-config=backends/backend_dev.hcl # first time only

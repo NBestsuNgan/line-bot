@@ -7,7 +7,8 @@ from fastapi import FastAPI, Request, HTTPException, Header
 
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
-from linebot.v3.webhooks import MessageEvent, TextMessageContent
+from linebot.v3.webhooks import MessageEvent, MessageContent
+from aiohttp import web
 
 from linebot.v3.messaging import (
     ApiClient, 
@@ -18,17 +19,13 @@ from linebot.v3.messaging import (
     # FlexMessage, 
     # Emoji,
 )
-
-# from app.response_message import reponse_message
-
-
+# start app
 app = FastAPI()
 
+# set configure
 load_dotenv()
-
-# LINE Access Key
+from .session_handler import SessionHandler 
 get_access_token = os.getenv('CHANNEL_ACCESS_TOKEN')
-# LINE Secret Key
 get_channel_secret = os.getenv('CHANNEL_SECRET')
 
 
@@ -43,44 +40,32 @@ get_channel_secret = os.getenv('CHANNEL_SECRET')
 # get_access_token = get_secret_value('CHANNEL_ACCESS_TOKEN')
 # get_channel_secret = get_secret_value('CHANNEL_SECRET')
 
+# Initial configure
 configuration = Configuration(access_token=get_access_token)
 handler = WebhookHandler(channel_secret=get_channel_secret)
 
-@app.post("/callback")
+# passing requests to callbacl function and perform token validation
 @app.post("/callback")
 async def callback(request: Request, x_line_signature: str = Header(None)):
     body = await request.body()
     body_str = body.decode('utf-8')
 
-    print("=== LINE Webhook Request ===")
-    print(f"X-Line-Signature: {x_line_signature}")
-    print(f"Body: {body_str[:300]}...")  # print only first 300 chars for safety
-
     try:
         handler.handle(body_str, x_line_signature)
     except InvalidSignatureError:
-        print("❌ Invalid Signature. Check secret or signature mismatch.")
+        print("Invalid Signature. Check secret or signature mismatch.")
         raise HTTPException(status_code=400, detail="Invalid signature.")
 
     return 'OK'
 
+# Start sessiongandler class for context management
+BOT = SessionHandler()
 
-@handler.add(MessageEvent, message=TextMessageContent)
-def handle_message(event: MessageEvent):
-    with ApiClient(configuration) as api_client:
-        line_bot_api = MessagingApi(api_client)
-
-        reply_message = "hi how are you today?"
-
-        if not reply_message:
-            return None
-
-        line_bot_api.reply_message(
-            ReplyMessageRequest(
-                reply_token=event.reply_token,
-                messages=[TextMessage(text=reply_message)]
-            )
-        )
+# passing requests to backend server for only TEXT message type
+@handler.add(MessageEvent, message=MessageContent)
+async def handle_message(event: MessageEvent):
+    # BOT is act as sessionhandler + sessionstate
+    await BOT.on_message_activity(event, configuration)
 
 
 if __name__ == "__main__":

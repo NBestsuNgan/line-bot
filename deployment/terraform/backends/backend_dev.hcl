@@ -1,2 +1,2 @@
-bucket  = "linebot-terraform-state-linebot-dev-464708-r7"
+bucket  = "linebot-terraform-state-line-bot-dev-466410-s7"
 prefix  = "linebot"

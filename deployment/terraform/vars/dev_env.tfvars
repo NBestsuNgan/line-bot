@@ -2,7 +2,7 @@
 project_name = "linebot"
 
 # Your Production Google Cloud project id
-project_id = "linebot-dev-464708-r7"
+project_id = "line-bot-dev-466410-s7"
 
 # Environment (dev, stagging, prod)
 env = "dev"
@@ -11,7 +11,7 @@ env = "dev"
 host_connection_name = "git-linebot"
 
 # Name of the repository you added to Cloud Build
-repository_name = "linebot"
+repository_name = "line-bot"
 
 # The Google Cloud region you will use to deploy the infrastructure
 region = "us-central1"
@@ -19,7 +19,7 @@ region = "us-central1"
 #The value can only be one of "global", "us" and "eu".
 data_store_region          = "us"
 repository_owner           = "NBestsuNgan"
-github_app_installation_id = "73948947"
-github_pat_secret_id       = "git-linebot-github-oauthtoken-z5s8k0"
+github_app_installation_id = "76591376"
+github_pat_secret_id       = "git-line-bot-github-oauthtoken-u5eeoi"
 connection_exists          = true
 repository_exists          = true
