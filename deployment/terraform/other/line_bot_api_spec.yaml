@@ -41,6 +41,3 @@ securityDefinitions:
     type: apiKey
     name: key
     in: query
-
-
- #
