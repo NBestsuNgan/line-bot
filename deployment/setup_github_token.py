@@ -10,6 +10,7 @@ import sys
 import tempfile
 import secrets
 import string
+import os
 
 
 def run_command(cmd, capture_output=False, check=True):
@@ -21,6 +22,10 @@ def run_command(cmd, capture_output=False, check=True):
         print(f"❌ Command failed: {' '.join(cmd)}")
         print(f"Error: {e}")
         raise
+
+
+def gcloud_cmd():
+    return 'gcloud.cmd' if os.name == 'nt' else 'gcloud'
 
 
 def get_github_app_installation_id(repository_owner, repo_name):
@@ -81,7 +86,7 @@ def create_or_update_secret(secret_id, secret_value, project_id):
         try:
             # First try to add a new version to existing secret
             run_command([
-                'gcloud', 'secrets', 'versions', 'add', secret_id,
+                gcloud_cmd(), 'secrets', 'versions', 'add', secret_id,
                 '--data-file', temp_file.name,
                 f'--project={project_id}'
             ])
@@ -90,7 +95,7 @@ def create_or_update_secret(secret_id, secret_value, project_id):
             # If adding version fails (secret doesn't exist), create it
             try:
                 run_command([
-                    'gcloud', 'secrets', 'create', secret_id,
+                    gcloud_cmd(), 'secrets', 'create', secret_id,
                     '--data-file', temp_file.name,
                     f'--project={project_id}',
                     '--replication-policy', 'automatic'
@@ -153,7 +158,7 @@ def main():
     
     # Check if gcloud is available
     try:
-        run_command(['gcloud', '--version'], capture_output=True)
+        run_command([gcloud_cmd(), '--version'], capture_output=True)
         print("✅ Google Cloud CLI is available")
     except (subprocess.CalledProcessError, FileNotFoundError):
         print("❌ Google Cloud CLI not found. Please install it first.")
@@ -161,7 +166,7 @@ def main():
     
     # Set the project
     try:
-        run_command(['gcloud', 'config', 'set', 'project', project_id])
+        run_command([gcloud_cmd(), 'config', 'set', 'project', project_id])
         print(f"✅ Set active project to {project_id}")
     except subprocess.CalledProcessError:
         print(f"❌ Failed to set project {project_id}")
@@ -169,7 +174,7 @@ def main():
     
     # Enable Secret Manager API
     try:
-        run_command(['gcloud', 'services', 'enable', 'secretmanager.googleapis.com', f'--project={project_id}'])
+        run_command([gcloud_cmd(), 'services', 'enable', 'secretmanager.googleapis.com', f'--project={project_id}'])
         print("✅ Enabled Secret Manager API")
     except subprocess.CalledProcessError:
         print("❌ Failed to enable Secret Manager API")

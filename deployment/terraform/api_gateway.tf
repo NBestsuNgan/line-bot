@@ -20,13 +20,13 @@ resource "google_api_gateway_api" "api" {
   project  = var.project_id
 }
 
-resource "null_resource" "wait_for_api_ready" {
-  depends_on = [google_api_gateway_api.api]
+# resource "null_resource" "wait_for_api_ready" {
+#   depends_on = [google_api_gateway_api.api]
 
-  provisioner "local-exec" {
-    command = "sleep 30"
-  }
-}
+#   provisioner "local-exec" {
+#     command = "sleep 30"
+#   }
+# }
 
 resource "google_api_gateway_api_config" "api_cfg" {
   provider      = google-beta
@@ -51,7 +51,7 @@ resource "google_api_gateway_api_config" "api_cfg" {
 
   depends_on = [
     google_api_gateway_api.api,
-    null_resource.wait_for_api_ready
+    # null_resource.wait_for_api_ready
   ]
 }
 
