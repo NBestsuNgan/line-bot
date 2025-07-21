@@ -4,7 +4,9 @@ info:
   description: Proxy line Bot requests to Cloud Run
   version: 1.0.0
 
-host: line-bot-api.apigateway.arkhr-${env}.cloud.goog
+# REMOVE THIS LINE:
+host: line-bot-api.apigateway.${env}.cloud.goog
+
 basePath: /v1
 schemes:
   - https

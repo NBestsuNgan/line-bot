@@ -29,7 +29,7 @@ vertexAiSearchTool = VertexAiSearchTool(
 root_agent = Agent(
     name="linebot_agent",
     model="gemini-2.0-flash",
-    description="ArkHR agent which responsible for answer the question from employee",
+    description="Agent which responsible for answer the question from employee",
     instruction=return_instructions_root(),
     tools=[vertexAiSearchTool]
 )

@@ -13,6 +13,18 @@ from linebot.v3.messaging import (
     TextMessage,
 )
 from session_handler import SessionHandler
+import logging
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s:%(name)s: %(message)s",  # <-- timestamp included here
+    datefmt="%Y-%m-%d %H:%M:%S",  # Optional: custom date format
+    handlers=[logging.StreamHandler()]
+)
+logging.getLogger("aiohttp.access").setLevel(logging.WARNING)
+logger = logging.getLogger("Session_handler")
+
 
 def get_secret_value(secret_name, default=None):
     """Try reading from a mounted file, fallback to env variable."""
@@ -32,8 +44,12 @@ BOT = SessionHandler()
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event: MessageEvent):
     print("Handler called!")
+    logger.info("Handler called!")
     try:
-        asyncio.create_task(BOT.on_message_activity(event, configuration))
+        try:
+            BOT.on_message_activity(event, configuration)
+        except:
+            asyncio.create_task(BOT.on_message_activity(event, configuration))
     except Exception as e:
         print("Exception in handle_message:", e)
 

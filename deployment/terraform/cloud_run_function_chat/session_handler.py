@@ -52,6 +52,7 @@ class SessionHandler():
 
  
     async def on_message_activity(self, lineEvent: MessageEvent, configuration: Configuration):
+        logger.info("entering on_message_activity successfully")
         # turn on engine
         await self.get_remote_app()
 

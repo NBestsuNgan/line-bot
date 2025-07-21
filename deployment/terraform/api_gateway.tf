@@ -1,7 +1,16 @@
 locals {
-    # Only valid roles for API Gateway
-  bot_sa_roles_roles = [
-    "roles/apigateway.admin"  
+  # Roles for the API Gateway Service Account itself (to invoke other services like Cloud Run)
+  # This role is applied to the service account, not the API Gateway resources.
+  bot_sa_invoker_roles = [
+    "roles/run.invoker"
+  ]
+
+  # Roles for managing the API Gateway resources (API, API Config, Gateway)
+  # These roles are applied ON the API Gateway resources, granting permissions
+  # to the specified member to manage/view the API Gateway.
+  # 'apigateway.admin' is a valid role for managing API Gateway resources.
+  api_gateway_management_roles = [
+    "roles/apigateway.admin"
   ]
 }
 
@@ -27,7 +36,7 @@ resource "google_api_gateway_api_config" "api_cfg" {
 
   openapi_documents {
     document {
-      path = "spec.yaml"
+      path     = "spec.yaml"
       contents = base64encode(templatefile("${path.module}/other/line_bot_api_spec.yaml", {
         cloud_function_url = google_cloudfunctions2_function.function.service_config[0].uri
         project_id         = var.project_id
@@ -83,8 +92,10 @@ resource "google_service_account" "api_gateway_sa" {
 }
 
 # Assign roles to the API Gateway service account
-resource "google_project_iam_member" "bot_sa_roles" {
-  for_each = toset(local.bot_sa_roles_roles)
+# This is where roles like 'roles/run.invoker' should be applied.
+# This grants the service account permission to invoke Cloud Run services.
+resource "google_project_iam_member" "bot_sa_invoker_roles" {
+  for_each = toset(local.bot_sa_invoker_roles)
 
   project    = var.project_id
   role       = each.key
@@ -92,9 +103,10 @@ resource "google_project_iam_member" "bot_sa_roles" {
   depends_on = [google_service_account.api_gateway_sa]
 }
 
-# Assign API Gateway specific IAM roles (only valid ones)
-resource "google_api_gateway_api_iam_member" "member" {
-  for_each = toset(local.bot_sa_roles_roles)
+# Assign API Gateway specific IAM roles for managing the API Gateway itself.
+# These roles grant permissions to the service account to manage the API Gateway resources.
+resource "google_api_gateway_api_iam_member" "api_management_member" {
+  for_each = toset(local.api_gateway_management_roles)
 
   provider   = google-beta
   project    = google_api_gateway_api.api.project
@@ -104,8 +116,8 @@ resource "google_api_gateway_api_iam_member" "member" {
   depends_on = [google_service_account.api_gateway_sa, google_api_gateway_api.api]
 }
 
-resource "google_api_gateway_api_config_iam_member" "member" {
-  for_each = toset(local.bot_sa_roles_roles)
+resource "google_api_gateway_api_config_iam_member" "api_config_management_member" {
+  for_each = toset(local.api_gateway_management_roles)
 
   provider   = google-beta
   project    = google_api_gateway_api_config.api_cfg.project
@@ -116,8 +128,8 @@ resource "google_api_gateway_api_config_iam_member" "member" {
   depends_on = [google_service_account.api_gateway_sa, google_api_gateway_api_config.api_cfg]
 }
 
-resource "google_api_gateway_gateway_iam_member" "member" {
-  for_each = toset(local.bot_sa_roles_roles)
+resource "google_api_gateway_gateway_iam_member" "gateway_management_member" {
+  for_each = toset(local.api_gateway_management_roles)
 
   provider   = google-beta
   project    = google_api_gateway_gateway.api_gw.project
@@ -127,4 +139,3 @@ resource "google_api_gateway_gateway_iam_member" "member" {
   member     = "serviceAccount:${google_service_account.api_gateway_sa.email}"
   depends_on = [google_service_account.api_gateway_sa, google_api_gateway_gateway.api_gw]
 }
-
