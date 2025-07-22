@@ -28,10 +28,3 @@ resource "google_discovery_engine_search_engine" "search_engine" {
 }
 
 
-# Grant the 'Discovery Engine User' role to Reasoning Engine
-resource "google_project_iam_member" "discovery_engine_sa_access" {
-  project = var.project_id
-  role    = "roles/discoveryengine.user"
-  member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
-
-}
