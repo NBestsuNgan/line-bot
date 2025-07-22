@@ -46,10 +46,7 @@ def handle_message(event: MessageEvent):
     print("Handler called!")
     logger.info("Handler called!")
     try:
-        try:
-            BOT.on_message_activity(event, configuration)
-        except:
-            asyncio.create_task(BOT.on_message_activity(event, configuration))
+        asyncio.run(BOT.on_message_activity(event, configuration))
     except Exception as e:
         print("Exception in handle_message:", e)
 
@@ -57,10 +54,12 @@ def bot_webhook(request: Request) -> Response:
     if request.method == 'GET':
         return Response("Bot server is running.", status=200, mimetype="text/plain")
     elif request.method == 'POST':
+        logger.info("reach post call")
         x_line_signature = request.headers.get('X-Line-Signature', None)
         body_str = request.get_data(as_text=True)
         try:
             handler.handle(body_str, x_line_signature)
+            logger.info("reach Handler called!")
         except InvalidSignatureError:
             print("Invalid Signature. Check secret or signature mismatch.")
             return Response("Invalid signature.", status=400)

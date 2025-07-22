@@ -2,7 +2,8 @@ locals {
   # Roles for the API Gateway Service Account itself (to invoke other services like Cloud Run)
   # This role is applied to the service account, not the API Gateway resources.
   bot_sa_invoker_roles = [
-    "roles/run.invoker"
+    "roles/run.invoker",
+    "roles/cloudfunctions.invoker"
   ]
 
   # Roles for managing the API Gateway resources (API, API Config, Gateway)
@@ -20,13 +21,6 @@ resource "google_api_gateway_api" "api" {
   project  = var.project_id
 }
 
-# resource "null_resource" "wait_for_api_ready" {
-#   depends_on = [google_api_gateway_api.api]
-
-#   provisioner "local-exec" {
-#     command = "sleep 30"
-#   }
-# }
 
 resource "google_api_gateway_api_config" "api_cfg" {
   provider      = google-beta
@@ -51,7 +45,6 @@ resource "google_api_gateway_api_config" "api_cfg" {
 
   depends_on = [
     google_api_gateway_api.api,
-    # null_resource.wait_for_api_ready
   ]
 }
 
@@ -71,15 +64,16 @@ resource "google_apikeys_key" "api_gateway_key" {
   display_name = "${var.env} API Gateway Key"
   project      = var.project_id
 
-  restrictions {
-    api_targets {
-      service = google_api_gateway_api.api.managed_service
-      methods = ["POST", "GET"]
-    }
-  }
+  # restrictions {
+  #   api_targets {
+  #     service = google_api_gateway_api.api.managed_service
+  #     methods = ["POST", "GET"]
+  #   }
+  # }
 
   depends_on = [google_api_gateway_api.api]
 }
+
 
 ###################################################### IAM ####################################################
 

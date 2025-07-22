@@ -4,9 +4,6 @@ info:
   description: Proxy line Bot requests to Cloud Run
   version: 1.0.0
 
-# REMOVE THIS LINE:
-host: line-bot-api.apigateway.${env}.cloud.goog
-
 basePath: /v1
 schemes:
   - https
@@ -28,15 +25,15 @@ paths:
           required: true
           schema:
             type: object
+      x-google-backend:
+        address: ${cloud_function_url}
+        path_translation: APPEND_PATH_TO_ADDRESS
       responses:
         default:
           description: successful operation
       security:
         - api_key: []
-
-x-google-backend:
-  address: ${cloud_function_url} #adjust
-  path_translation: APPEND_PATH_TO_ADDRESS
+    
 
 securityDefinitions:
   api_key:

@@ -29,7 +29,7 @@ GCS_PREFIX = "sessions"
 class SessionState:
     def __init__(self, event: MessageEvent, user_id=None, session_count=0, cache_question_response = dict()):
         self.event = event
-        self.user_id = user_id if user_id is not None else event.message.id
+        self.user_id = user_id if user_id is not None else event.source.user_id
         self.session_count = session_count
         self.cache_question_response = dict()
 
