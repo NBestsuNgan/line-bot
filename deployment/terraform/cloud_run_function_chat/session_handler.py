@@ -94,38 +94,37 @@ class SessionHandler():
                     sessions = self.remote_app.list_sessions(user_id=user_id)
                     session_id = sessions["sessions"][-1]["id"]
 
-                else:
-                    for engineEvent in self.remote_app.stream_query(
-                        user_id=user_id,
-                        session_id=session_id,
-                        message=user_question,
-                    ):
-                        if engineEvent.get("content", None):
-                            self._userState.session_count  += 1
-                            await self._sessionState.save_session(user_id, {
-                                "user_id": user_id,
-                                "session_count": self._userState.session_count
-                            })
-                            # print(sessions)
-                            # print(f"session_user_state.count_messages : {session_user_state.count_messages}")
-                            line_bot_api.reply_message(
-                                ReplyMessageRequest(
-                                    reply_token=lineEvent.reply_token,
-                                    messages=[TextMessage(text=f"{engineEvent['content']['parts'][-1]['text']}")]
-                                )
+                for engineEvent in self.remote_app.stream_query(
+                    user_id=user_id,
+                    session_id=session_id,
+                    message=user_question,
+                ):
+                    if engineEvent.get("content", None):
+                        self._userState.session_count  += 1
+                        await self._sessionState.save_session(user_id, {
+                            "user_id": user_id,
+                            "session_count": self._userState.session_count
+                        })
+                        # print(sessions)
+                        # print(f"session_user_state.count_messages : {session_user_state.count_messages}")
+                        line_bot_api.reply_message(
+                            ReplyMessageRequest(
+                                reply_token=lineEvent.reply_token,
+                                messages=[TextMessage(text=f"{engineEvent['content']['parts'][-1]['text']}")]
                             )
-                            logger.info(f"Question: '{user_question}', Answer: '{engineEvent['content']['parts'][-1]['text']}', from user_id: '{user_id}'")
+                        )
+                        logger.info(f"Question: '{user_question}', Answer: '{engineEvent['content']['parts'][-1]['text']}', from user_id: '{user_id}'")
 
-                        else:
-                            line_bot_api.reply_message(
-                                ReplyMessageRequest(
-                                    reply_token=lineEvent.reply_token,
-                                    messages=[TextMessage(text='Agent Engine not responding, Please Contact IT Team')]
-                                )
+                    else:
+                        line_bot_api.reply_message(
+                            ReplyMessageRequest(
+                                reply_token=lineEvent.reply_token,
+                                messages=[TextMessage(text='Agent Engine not responding, Please Contact IT Team')]
                             )
-                            raise Exception(
-                                f"Error: {engineEvent.get('error', 'Agent Engine not responding')}"
-                            )
+                        )
+                        raise Exception(
+                            f"Error: {engineEvent.get('error', 'Agent Engine not responding')}"
+                        )
             
 
     async def restart_session(self, session_id: str, user_id: str, session_user_state: SessionState):
@@ -139,5 +138,5 @@ class SessionHandler():
         # line bot session restart
         self._userState.session_count = 0
         session_user_state.cache_question_response = {}
-
+        await self._sessionState.save_session(user_id, {"user_id": user_id, "session_count": self._userState.session_count})
         return None
