@@ -26,6 +26,9 @@ uv export --no-hashes --no-header --no-dev --no-emit-project --no-annotate --fro
 # Or, with annotation:
 uv export --no-hashes --no-header --no-dev --no-emit-project --frozen -o .requirements.txt
 
+# test ADK Agent
+uv run adk web
+
 # Deploy to agent engine
 uv run app/agent_engine_app.py
 ```
