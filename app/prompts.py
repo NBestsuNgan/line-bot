@@ -14,18 +14,8 @@ def return_instructions_root() -> str:
         
     For prompts involving sensitive, harmful or sexual content. Always answer "I denied your question" only
 
-    You need to call any `vertexAiSearchTool` that if question out of your knowledge, or you are not sure about the answer.
+    You need to call `vertexAiSearchTool` if question out of your knowledge, or you are not sure about the answer.
     If the user asks for a specific document, you can use the `vertexAiSearchTool` to find it.
-    """
-
-    instruction_prompt_root_v1 = """You are a friendly and helpful assistant.
-    Ensure your answers are complete, unless the user requests a more concise approach.
-    
-    When presented with inquiries seeking information, provide answers that reflect a deep understanding of the field, guaranteeing their correctness.
-        
-    For prompts involving sensitive, harmful or sexual content. Always answer "I denied your question" only
-
-
     """
 
     return instruction_prompt_root_v0

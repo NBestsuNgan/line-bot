@@ -56,7 +56,7 @@ class AgentEngineApp(AdkApp):
         feedback_obj = Feedback.model_validate(feedback)
         self.logger.log_struct(feedback_obj.model_dump(), severity="INFO")
 
-    def register_operations(self) -> Mapping[str, Sequence]:
+    def register_operations(self) -> dict[str, list[str]]:
         """Registers the operations of the Agent.
 
         Extends the base operations to include feedback registration functionality.
@@ -69,8 +69,8 @@ class AgentEngineApp(AdkApp):
         """Returns a clone of the ADK application."""
         template_attributes = self._tmpl_attrs
         return self.__class__(
-            agent=copy.deepcopy(template_attributes.get("agent")),
-            enable_tracing=template_attributes.get("enable_tracing"),
+            agent=copy.deepcopy(template_attributes["agent"]),
+            enable_tracing=bool(template_attributes.get("enable_tracing", False)),
             session_service_builder=template_attributes.get("session_service_builder"),
             artifact_service_builder=template_attributes.get(
                 "artifact_service_builder"
@@ -118,7 +118,7 @@ def deploy_agent_engine_app(
     agent_config = {
         "agent_engine": agent_engine,
         "display_name": agent_name,
-        "description": "manage agent V2",
+        "description": "manage agent V3",
         "extra_packages": extra_packages,
         "env_vars": env_vars,
         # "requirements": requirements
