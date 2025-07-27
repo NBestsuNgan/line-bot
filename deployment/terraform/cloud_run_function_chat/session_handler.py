@@ -50,7 +50,20 @@ class SessionHandler():
         engine_id = self._remote_agent_engine_id.split("/")[-1]
         self.remote_app = agent_engines.get(engine_id)  
 
- 
+    async def restart_session(self, session_id: str, user_id: str, session_user_state: SessionState):
+        """
+        Restart the session by deleting and creating a new one.
+        """
+        # agent engine restart
+        self.remote_app.delete_session(session_id=session_id, user_id=user_id)
+        self.remote_app.create_session(user_id=user_id)
+
+        # line bot session restart
+        self._userState.session_count = 0
+        session_user_state.cache_question_response = {}
+        await self._sessionState.save_session(user_id, {"user_id": user_id, "session_count": self._userState.session_count})
+        return None
+    
     async def on_message_activity(self, lineEvent: MessageEvent, configuration: Configuration):
         logger.info("entering on_message_activity successfully")
         # turn on engine
@@ -127,16 +140,4 @@ class SessionHandler():
                         )
             
 
-    async def restart_session(self, session_id: str, user_id: str, session_user_state: SessionState):
-        """
-        Restart the session by deleting and creating a new one.
-        """
-        # agent engine restart
-        self.remote_app.delete_session(session_id=session_id, user_id=user_id)
-        self.remote_app.create_session(user_id=user_id)
 
-        # line bot session restart
-        self._userState.session_count = 0
-        session_user_state.cache_question_response = {}
-        await self._sessionState.save_session(user_id, {"user_id": user_id, "session_count": self._userState.session_count})
-        return None

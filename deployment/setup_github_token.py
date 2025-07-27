@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Simple GitHub Token Setup Script
 Gets repository owner and automatically retrieves GitHub app installation ID
