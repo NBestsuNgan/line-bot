@@ -78,7 +78,7 @@ steps:
       - |
         echo $(gcloud auth print-access-token -q) > auth_token.txt
 
-    # 7.Load Testing
+  # 7.Load Testing
   - name: "python:3.12-slim"
     id: load_test
     entrypoint: /bin/bash
