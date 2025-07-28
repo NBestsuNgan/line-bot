@@ -46,3 +46,19 @@ resource "google_storage_bucket" "bucket_line_bot_session" {
 
   depends_on = [resource.google_project_service.services]
 }
+
+# bucket store line bot session  
+resource "google_storage_bucket" "vertex_ai_data_storage" {
+  name                        = "${var.project_id}-${var.project_name}-vertex_ai_data_storage"
+  location                    = var.region
+  project                     = var.project_id
+  uniform_bucket_level_access = true
+
+  depends_on = [resource.google_project_service.services]
+}
+
+resource "google_storage_bucket_iam_member" "public_access" {
+  bucket = google_storage_bucket.vertex_ai_data_storage.name
+  role   = "roles/storage.objectViewer"
+  member = "allUsers"
+}

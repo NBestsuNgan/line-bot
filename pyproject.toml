@@ -6,7 +6,7 @@ authors = [
     {name = "animalstupid", email = "animalstupid@gmail.com"},
 ]
 dependencies = [
-    "google-adk~=1.6.1",
+    "google-adk==1.8.0",
     "langchain-core~=0.3.55",
     "langchain-google-community[vertexaisearch]~=2.0.7",
     "Jinja2~=3.1.6",
