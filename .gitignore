@@ -196,6 +196,7 @@ my_env.tfvars
 .env
 .requirements.txt
 GEMINI.md
+agent_vt_gen.py
 
 # deployment meta daat
 deployment_metadata.json

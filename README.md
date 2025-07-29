@@ -27,7 +27,7 @@ uv export --no-hashes --no-header --no-dev --no-emit-project --no-annotate --fro
 uv export --no-hashes --no-header --no-dev --no-emit-project --frozen -o .requirements.txt
 
 # test ADK Agent
-uv run adk web
+uv run adk web --reload_agents
 
 # Deploy to agent engine
 uv run app/agent_engine_app.py

@@ -17,7 +17,7 @@ import logging
 import pytest
 from google.adk.events.event import Event
 
-from app.agent_test_gen_image import root_agent
+from app.agent import root_agent
 from app.agent_engine_app import AgentEngineApp
 
 

@@ -20,7 +20,7 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
-from app.agent_test_gen_image import root_agent
+from app.agent import root_agent
 
 
 @patch(

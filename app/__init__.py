@@ -1,3 +1,3 @@
-from app.agent_test_gen_image import root_agent
+from app.agent import root_agent
 
 __all__ = ["root_agent"]
