@@ -11,5 +11,5 @@ resource "google_project_iam_member" "discovery_engine_sa_access" {
   project = var.project_id
   role    = each.value
   member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-aiplatform-re.iam.gserviceaccount.com"
-
+  depends_on = [google_project_service_identity.vertex_sa]
 }
