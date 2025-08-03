@@ -2,7 +2,7 @@
 project_name = "linebot"
 
 # Your Production Google Cloud project id /  line-bot-dev-yt
-project_id = "line-bot-dev-yt-467910-p1"
+project_id = "{dev-project-id}"
 
 # Environment (dev, stagging, prod)
 env = "dev"
