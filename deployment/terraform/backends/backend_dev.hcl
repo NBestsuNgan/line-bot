@@ -1,2 +1,2 @@
-bucket  = "linebot-terraform-state-line-bot-dev-yt-467910-p1"
+bucket  = "linebot-terraform-state-{dev-project_id}"
 prefix  = "linebot"

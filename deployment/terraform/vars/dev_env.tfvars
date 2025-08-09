@@ -19,7 +19,7 @@ region = "us-central1"
 #The value can only be one of "global", "us" and "eu".
 data_store_region          = "us"
 repository_owner           = "NBestsuNgan"
-github_app_installation_id = "78990942"
-github_pat_secret_id       = "git-line-bot-github-oauthtoken-byt0dk"
+github_app_installation_id = "XXXXX"
+github_pat_secret_id       = "git-line-bot-github-oauthtoken-xxxxx"
 connection_exists          = true
 repository_exists          = true
