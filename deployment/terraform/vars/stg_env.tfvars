@@ -2,7 +2,7 @@
 project_name = "linebot"
 
 # Your Production Google Cloud project id
-project_id = "{stagging_project_id}"
+project_id = "line-bot-dev-stg-yt-468608-f6"
 
 # Environment (dev, stagging, prod)
 env = "stagging"
@@ -18,8 +18,8 @@ region = "us-central1"
 
 #The value can only be one of "global", "us" and "eu".
 data_store_region          = "us"
-repository_owner           = "XXXX"
-github_app_installation_id = "XXXX"
-github_pat_secret_id       = "git-line-bot-github-oauthtoken-xxxxx"
+repository_owner           = "NBestsuNgan"
+github_app_installation_id = "80020348"
+github_pat_secret_id       = "git-line-bot-github-oauthtoken-fbo4oj"
 connection_exists          = true
 repository_exists          = true
