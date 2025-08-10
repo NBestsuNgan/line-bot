@@ -41,7 +41,8 @@ locals {
     "roles/storage.admin",                     # Required for bucket access (e.g., logs, artifacts)
     "roles/cloudbuild.connectionAdmin",        # Required if managing Cloud Build connections
     "roles/logging.logWriter",                 # For write log
-    "roles/apigateway.admin"                   # For future re-config if nessecary
+    "roles/apigateway.admin",                   # For future re-config if nessecary
+    "roles/storage.admin"
   ]
 
 
