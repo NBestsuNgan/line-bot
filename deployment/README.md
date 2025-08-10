@@ -19,6 +19,7 @@ terraform apply --var-file vars/dev_env.tfvars -auto-approve
 # stagging
 gcloud storage buckets create gs://linebot-terraform-state-{stagging_project-id} --project={stagging_project-id} --location=us-central1
 terraform init -backend-config=backends/backend_stg.hcl # first time only
+terraform init -reconfigure -backend-config=backends/backend_stg.hcl
 terraform plan --var-file vars/stg_env.tfvars
 terraform apply --var-file vars/stg_env.tfvars -auto-approve
 
@@ -26,9 +27,9 @@ terraform apply --var-file vars/stg_env.tfvars -auto-approve
 # prod
 gcloud storage buckets create gs://linebot-terraform-state-{prod_project-id} --project={prod_project-id} --location=us-central1
 terraform init -backend-config=backends/backend_prod.hcl # first time only
+terraform init -reconfigure -backend-config=backends/backend_prod.hcl
 terraform plan --var-file vars/prod_env.tfvars
 terraform apply --var-file vars/prod_env.tfvars -auto-approve
-
 
 
 # optional
