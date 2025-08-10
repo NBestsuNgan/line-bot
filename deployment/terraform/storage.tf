@@ -63,7 +63,7 @@ resource "google_storage_bucket_iam_member" "public_access" {
   member = "allUsers"
 }
 
-resource "google_storage_bucket" "vertex_ai_data_storage" {
+resource "google_storage_bucket" "agent_data_storage" {
   name                        = "${var.project_id}-${var.project_name}-agent-logs-data"
   location                    = var.region
   project                     = var.project_id
