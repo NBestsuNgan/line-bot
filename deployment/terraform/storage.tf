@@ -62,3 +62,12 @@ resource "google_storage_bucket_iam_member" "public_access" {
   role   = "roles/storage.objectViewer"
   member = "allUsers"
 }
+
+resource "google_storage_bucket" "agent_data_storage" {
+  name                        = "${var.project_id}-${var.project_name}-agent-logs-data"
+  location                    = var.region
+  project                     = var.project_id
+  uniform_bucket_level_access = true
+
+  depends_on = [resource.google_project_service.services]
+}
