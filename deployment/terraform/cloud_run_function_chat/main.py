@@ -14,6 +14,8 @@ from linebot.v3.messaging import (
 )
 from session_handler import SessionHandler
 import logging
+from google.cloud import secretmanager
+import google
 
 # Set up logging
 logging.basicConfig(
@@ -25,14 +27,26 @@ logging.basicConfig(
 logging.getLogger("aiohttp.access").setLevel(logging.WARNING)
 logger = logging.getLogger("Session_handler")
 
+def get_secret_value(secret_name: str):
+    """
+    Get information about the given secret. This only returns metadata about
+    the secret container, not any secret material.
+    """
 
-def get_secret_value(secret_name, default=None):
-    """Try reading from a mounted file, fallback to env variable."""
-    secret_path = f"/secrets/{secret_name}"
-    if os.path.exists(secret_path):  # For Cloud Run with Secret Manager
-        with open(secret_path, "r") as f:
-            return f.read().strip()
-    return os.getenv(secret_name, default)  # Fallback to env variable
+    try:
+        credentials, project_id = google.auth.default()
+
+        client = secretmanager.SecretManagerServiceClient()
+
+        name = f"projects/{project_id}/secrets/{secret_name}/versions/latest"
+
+        response = client.access_secret_version(request={"name": name})
+
+        secret_value = response.payload.data.decode("UTF-8")
+    except:
+        secret_value = os.environ.get(secret_name)
+    return secret_value
+
 
 get_access_token = get_secret_value('CHANNEL_ACCESS_TOKEN')
 get_channel_secret = get_secret_value('CHANNEL_SECRET')

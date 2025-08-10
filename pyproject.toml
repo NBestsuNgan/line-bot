@@ -13,6 +13,7 @@ dependencies = [
     "opentelemetry-exporter-gcp-trace~=1.9.0",
     "google-cloud-logging~=3.11.4",
     "google-cloud-aiplatform[evaluation,agent-engines]~=1.95.1",
+    "google-cloud-secret-manager==2.24.0",
     "python-dotenv>=1.1.1",
     "locust>=2.36.0",
     "line-bot-sdk==3.17.1"
