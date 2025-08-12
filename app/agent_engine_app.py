@@ -118,7 +118,7 @@ def deploy_agent_engine_app(
     agent_config = {
         "agent_engine": agent_engine,
         "display_name": agent_name,
-        "description": "manage agent V4 aug 1o 2025",
+        "description": "deploy agent engine app to Vertex AI",
         "extra_packages": extra_packages,
         "env_vars": env_vars,
         # "requirements": requirements

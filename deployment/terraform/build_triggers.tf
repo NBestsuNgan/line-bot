@@ -12,19 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# resource "google_project_iam_member" "cicd_runner_sa_secret_accessor" {
-#   project = var.project_id
-#   role    = "roles/secretmanager.secretAccessor"
-#   member  = "serviceAccount:${google_service_account.cicd_runner_sa.email}"
-# }
-
-# # In base code it use default SA but if we need to control by our self we need to add impersonate
-# resource "google_project_iam_member" "cloudbuild_can_impersonate_cicd_runner_sa" {
-#   project = var.project_id
-#   role    = "roles/iam.serviceAccountUser"
-#   member  = "serviceAccount:service-${data.google_project.project.number}@gcp-sa-cloudbuild.iam.gserviceaccount.com"
-# }
-
 # 1. Create PR checks trigger (only for staging)
 resource "google_cloudbuild_trigger" "pr_checks" {
   count = var.env == "stagging" ? 1 : 0

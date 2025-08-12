@@ -1,3 +1,5 @@
+# Powred by ChatGPT
+
 """
 Simple GitHub Token Setup Script
 Gets repository owner and automatically retrieves GitHub app installation ID
