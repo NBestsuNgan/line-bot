@@ -20,4 +20,6 @@ data processing, and other core components of your application.
 
 def test_dummy() -> None:
     """Placeholder - replace with real tests."""
+    # 1.LLM as a judge for validate agent response with simple model with predeined answer guideline
+    # 2.Similarity score as a judge for validate agent response 
     assert 1 == 1

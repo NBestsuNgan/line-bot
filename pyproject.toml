@@ -3,7 +3,7 @@ name = "linebot-agent"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "animalstupid", email = "animalstupid@gmail.com"},
+    {name = "testUser", email = "testUser@gmail.com"},
 ]
 dependencies = [
     "google-adk==1.8.0",
